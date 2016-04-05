@@ -151,8 +151,8 @@ void *DeviceHandlerThreadUSB (void *attr) {
 
   // Launch thread to handle rumble events
   pthread_t tid_rumble;
+  struct RumbleArgs rargs;
   if (1) { // TODO: Make this configurable
-    struct RumbleArgs rargs;
     rargs.fduinput = fduinput;
     rargs.usbdev = usbdev;
     rargs.devtype = devtype;
