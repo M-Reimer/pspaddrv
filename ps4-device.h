@@ -17,3 +17,4 @@
 */
 
 int PS4PollInputUSB(libusb_device_handle *usbdev, struct XpadMsg *msg_out);
+int PS4SendRumbleUSB(libusb_device_handle *usbdev, int weak, int strong);

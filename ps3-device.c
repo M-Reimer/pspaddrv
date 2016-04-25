@@ -208,7 +208,7 @@ int PS3SendRumbleUSB(libusb_device_handle *usbdev, int weak, int strong) {
   };
 
   return libusb_control_transfer(usbdev,
-                        LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_CLASS | LIBUSB_RECIPIENT_INTERFACE,
+                        LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_CLASS | LIBUSB_RECIPIENT_INTERFACE,
                         HID_REQ_SET_REPORT,
                         (HID_OUTPUT_REPORT<<8)|0x01,
                         0,

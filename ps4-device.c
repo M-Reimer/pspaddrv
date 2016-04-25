@@ -185,3 +185,28 @@ int PS4PollInputUSB(libusb_device_handle *usbdev, struct XpadMsg *msg_out) {
 
   return 0;
 }
+
+int PS4SendRumbleUSB(libusb_device_handle *usbdev, int weak, int strong) {
+  uint8_t left = strong / 256;
+  uint8_t right = weak / 256;
+
+  uint8_t cmd[] = {
+    0x05,
+    0xFF, 0x00, 0x00, right, left,  // rumble values
+    0xFF, 0xFF, 0xFF, 0x00, 0x00,  // Red, Green, Blue, TimeBright, TimeDark
+    0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00
+  };
+
+  return libusb_control_transfer(usbdev,
+                        LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_CLASS | LIBUSB_RECIPIENT_INTERFACE,
+                        HID_REQ_SET_REPORT,
+                        (HID_OUTPUT_REPORT<<8)|0x00,
+                        0,
+                        cmd,
+                        sizeof(cmd),
+                        USB_CTRL_GET_TIMEOUT);
+}

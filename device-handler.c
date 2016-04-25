@@ -70,9 +70,12 @@ void *DeviceHandlerThreadRumble (void *attr) {
     printf("Received something\n");
 
     if (event.type == EV_FF && event.code == effect_id) {
+      int ret;
       if (args->devtype == PS3_DEVICE)
-        printf("Would send\n");
-        //PS3SendRumbleUSB(args->usbdev, event.value ? weak : 0, event.value ? strong : 0);
+        ret = PS3SendRumbleUSB(args->usbdev, event.value ? weak : 0, event.value ? strong : 0);
+      else
+        ret = PS4SendRumbleUSB(args->usbdev, event.value ? weak : 0, event.value ? strong : 0);
+      printf("Return EV_FF: %d\n", ret);
     }
     else if (event.type == EV_UINPUT) {
       printf("EV_UINPUT %d\n", event.code);
