@@ -26,6 +26,7 @@
 #include "ps4-device.h"
 
 #define DUALSHOCK4_ENDPOINT_IN  4 | LIBUSB_ENDPOINT_IN
+#define DUALSHOCK4_ENDPOINT_OUT 3 | LIBUSB_ENDPOINT_OUT
 
 // http://www.psdevwiki.com/ps4/DS4-USB
 struct Playstation4USBMsg {
@@ -201,12 +202,10 @@ int PS4SendRumbleUSB(libusb_device_handle *usbdev, int weak, int strong) {
     0x00
   };
 
-  return libusb_control_transfer(usbdev,
-                        LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_CLASS | LIBUSB_RECIPIENT_INTERFACE,
-                        HID_REQ_SET_REPORT,
-                        (HID_OUTPUT_REPORT<<8)|0x00,
-                        0,
-                        cmd,
-                        sizeof(cmd),
-                        USB_CTRL_GET_TIMEOUT);
+  int transferred;
+  int ret = libusb_interrupt_transfer(usbdev,
+                                      DUALSHOCK4_ENDPOINT_OUT,
+                                      (unsigned char*)&cmd, sizeof(cmd),
+                                      &transferred, USB_CTRL_GET_TIMEOUT);
+  printf("Transferred: %d\n", transferred);
 }
