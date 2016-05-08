@@ -55,3 +55,6 @@ struct XpadMsg {
 
 int UinputInit();
 void UinputSendXpadMsg(int fd, struct XpadMsg msg);
+
+#define UI_DEV_CREATE_MEMLESS _IO(UINPUT_IOCTL_BASE, 5)
+#define EV_UINPUT_MEMLESS		EV_UINPUT + 1

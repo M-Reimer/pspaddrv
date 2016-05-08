@@ -69,20 +69,6 @@ int UinputInit() {
     }
   }
 
-  // Set force feedback bits
-  if (1) { // TODO: Make this configurable
-    if (ioctl(fd, UI_SET_EVBIT, EV_FF) < 0) {
-      syslog(LOG_ERR, "uinput ioctl failed!");
-      close(fd);
-      return -1;
-    }
-    if (ioctl(fd, UI_SET_FFBIT, FF_RUMBLE) < 0) {
-      syslog(LOG_ERR, "uinput ioctl failed!");
-      close(fd);
-      return -1;
-    }
-  }
-
   // Set up uinput device information
   struct uinput_user_dev uidev;
   memset(&uidev, 0, sizeof(uidev));
@@ -129,15 +115,12 @@ int UinputInit() {
   uidev.absfuzz[ABS_HAT0Y] = 0;
   uidev.absflat[ABS_HAT0Y] = 0;
 
-  if (1) // TODO: Make this configurable
-    uidev.ff_effects_max = 1;
-
   if (write(fd, &uidev, sizeof(uidev)) < 0) {
     syslog(LOG_ERR, "uinput write failed!");
     close(fd);
     return -1;
   }
-  if (ioctl(fd, UI_DEV_CREATE) < 0) {
+  if (ioctl(fd, UI_DEV_CREATE_MEMLESS) < 0) {
     syslog(LOG_ERR, "uinput device creation failed!");
     close(fd);
     return -1;

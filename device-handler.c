@@ -43,10 +43,6 @@ void *DeviceHandlerThreadRumble (void *attr) {
 
   struct input_event event;
 
-  int effect_id = -1;
-  int strong = 0;
-  int weak = 0;
-
   printf("Startup: %d\n", args->fduinput);
 
   while (1) {
@@ -69,55 +65,15 @@ void *DeviceHandlerThreadRumble (void *attr) {
 
     printf("Received something\n");
 
-    if (event.type == EV_FF && event.code == effect_id) {
+    if (event.type == EV_UINPUT_MEMLESS) {
+      struct ff_rumble_effect effect;
+      memcpy(&effect, &event.value, sizeof(effect));
       int ret;
       if (args->devtype == PS3_DEVICE)
-        ret = PS3SendRumbleUSB(args->usbdev, event.value ? weak : 0, event.value ? strong : 0);
+        ret = PS3SendRumbleUSB(args->usbdev, effect.weak_magnitude, effect.strong_magnitude);
       else
-        ret = PS4SendRumbleUSB(args->usbdev, event.value ? weak : 0, event.value ? strong : 0);
+        ret = PS4SendRumbleUSB(args->usbdev, effect.weak_magnitude, effect.strong_magnitude);
       printf("Return EV_FF: %d\n", ret);
-    }
-    else if (event.type == EV_UINPUT) {
-      printf("EV_UINPUT %d\n", event.code);
-      if (event.code == UI_FF_UPLOAD) {
-        printf("UI_FF_UPLOAD start\n");
-        struct uinput_ff_upload upload;
-        memset(&upload, 0, sizeof(upload));
-
-        upload.request_id = event.value;
-
-        printf("UI_FF_UPLOAD middle\n");
-        int ret;
-        ret = ioctl(args->fduinput, UI_BEGIN_FF_UPLOAD, &upload);
-        if (ret < 0) {
-          printf("first ioctl failed %d %s\n", ret, strerror(errno));
-        }
-
-        // Remember ID and motor values for playback
-        if (upload.effect.type == FF_RUMBLE) {
-          effect_id = upload.effect.id;
-          strong = upload.effect.u.rumble.strong_magnitude;
-          weak = upload.effect.u.rumble.weak_magnitude;
-          printf("Effect uploaded\n");
-        }
-
-        ret = ioctl(args->fduinput, UI_END_FF_UPLOAD, &upload);
-        if (ret < 0) {
-          printf("second ioctl failed %d %s\n", ret, strerror(errno));
-        }
-        printf("UI_FF_UPLOAD end\n");
-      }
-      else if (event.code == UI_FF_ERASE) {
-        struct uinput_ff_erase erase;
-        memset(&erase, 0, sizeof(erase));
-
-        erase.request_id = event.value;
-
-        // Doesn't make sense to actually erase something...
-        ioctl(args->fduinput, UI_BEGIN_FF_ERASE, &erase);
-        ioctl(args->fduinput, UI_END_FF_ERASE, &erase);
-        printf("Event erased\n");
-      }
     }
   }
 
